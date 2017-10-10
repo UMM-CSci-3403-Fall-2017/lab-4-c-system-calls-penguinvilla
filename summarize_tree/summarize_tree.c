@@ -5,9 +5,9 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 static int num_dirs, num_regular;
-
 bool is_dir(const char* path) {
   /*
    * Use the stat() function (try "man 2 stat") to determine if the file
@@ -16,6 +16,9 @@ bool is_dir(const char* path) {
    * return value from stat in case there is a problem, e.g., maybe the
    * the file doesn't actually exist.
    */
+	struct stat buf;
+	stat(path, &buf);
+	return S_ISDIR(buf.st_mode);
 }
 
 /* 
@@ -36,15 +39,46 @@ void process_directory(const char* path) {
    * with a matching call to chdir() to move back out of it when you're
    * done.
    */
+//	char cwd[1024];
+	DIR *dir;
+        dir = opendir(path);
+	int chdirRes;
+	printf("made it to process_directory %s\n", path);
+//	getcwd(cwd, sizeof(cwd));
+//	printf("Before chdir: %s\n", cwd);
+	chdirRes = chdir(path);
+//	getcwd(cwd, sizeof(cwd));
+//	printf("After chdir: %s code: %d and path: %s\n", cwd, chdirRes, path);
+	if(dir == NULL){
+		printf("Cannot open directory %s error code: %d\n", path, errno);
+		return;
+	}
+
+	struct dirent* file;
+        file = readdir(dir);
+	while (file != NULL){
+		if (strcmp(file->d_name,".") != 0 && strcmp(file->d_name,"..") != 0 ){
+			process_path(file->d_name);
+		}
+
+		file = readdir(dir);
+	}
+	num_dirs++;
+	chdir("..");
+	closedir(dir);
+	free(file); free(dir);
 }
 
 void process_file(const char* path) {
   /*
    * Update the number of regular files.
    */
+	printf("made it to process_file %s\n",path);
+	num_regular++;
 }
 
 void process_path(const char* path) {
+	printf("made it to process_path! %d\n", num_dirs + num_regular);
   if (is_dir(path)) {
     process_directory(path);
   } else {
@@ -60,9 +94,13 @@ int main (int argc, char *argv[]) {
     return 1;
   }
 
+  char cwd[1024];
+  getcwd(cwd, sizeof(cwd));
+  printf("first dir : %s\n", cwd);
   num_dirs = 0;
   num_regular = 0;
 
+  
   process_path(argv[1]);
 
   printf("There were %d directories.\n", num_dirs);
