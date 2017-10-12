@@ -42,13 +42,8 @@ void process_directory(const char* path) {
 //	char cwd[1024];
 	DIR *dir;
         dir = opendir(path);
-	int chdirRes;
-	printf("made it to process_directory %s\n", path);
-//	getcwd(cwd, sizeof(cwd));
-//	printf("Before chdir: %s\n", cwd);
-	chdirRes = chdir(path);
-//	getcwd(cwd, sizeof(cwd));
-//	printf("After chdir: %s code: %d and path: %s\n", cwd, chdirRes, path);
+	chdir(path);
+
 	if(dir == NULL){
 		printf("Cannot open directory %s error code: %d\n", path, errno);
 		return;
@@ -66,19 +61,17 @@ void process_directory(const char* path) {
 	num_dirs++;
 	chdir("..");
 	closedir(dir);
-	free(file); free(dir);
+//	free(file); free(dir);
 }
 
 void process_file(const char* path) {
   /*
    * Update the number of regular files.
    */
-	printf("made it to process_file %s\n",path);
 	num_regular++;
 }
 
 void process_path(const char* path) {
-	printf("made it to process_path! %d\n", num_dirs + num_regular);
   if (is_dir(path)) {
     process_directory(path);
   } else {
@@ -96,7 +89,7 @@ int main (int argc, char *argv[]) {
 
   char cwd[1024];
   getcwd(cwd, sizeof(cwd));
-  printf("first dir : %s\n", cwd);
+//  printf("first dir : %s\n", cwd);
   num_dirs = 0;
   num_regular = 0;
 
