@@ -39,7 +39,6 @@ void process_directory(const char* path) {
    * with a matching call to chdir() to move back out of it when you're
    * done.
    */
-//	char cwd[1024];
 	DIR *dir;
         dir = opendir(path);
 	chdir(path);
@@ -61,7 +60,6 @@ void process_directory(const char* path) {
 	num_dirs++;
 	chdir("..");
 	closedir(dir);
-//	free(file); free(dir);
 }
 
 void process_file(const char* path) {
@@ -89,7 +87,6 @@ int main (int argc, char *argv[]) {
 
   char cwd[1024];
   getcwd(cwd, sizeof(cwd));
-//  printf("first dir : %s\n", cwd);
   num_dirs = 0;
   num_regular = 0;
 
